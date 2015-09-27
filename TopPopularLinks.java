@@ -185,10 +185,10 @@ public class TopPopularLinks extends Configured implements Tool {
         @Override
         public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
             for (IntArrayWritable val: values) {
-                Integer[] pair= (Integer[]) val.toArray();
+                IntWritable[] pair= (IntWritable[]) val.toArray();
 
-                Integer word = pair[0];
-                Integer count = pair[1];
+                Integer word = pair[0].get();
+                Integer count = pair[1].get();
 //                Integer wordInt = Integer.parseInt(word);
 //                String word = pair[0].toString();
                 countToWordMap.add(new Pair<Integer, Integer>(count, word));
