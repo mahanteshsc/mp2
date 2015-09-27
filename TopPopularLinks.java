@@ -83,7 +83,7 @@ public class TopPopularLinks extends Configured implements Tool {
         jobB.setInputFormatClass(KeyValueTextInputFormat.class);
         jobB.setOutputFormatClass(TextOutputFormat.class);
 
-        jobB.setJarByClass(TopPopularLinks .class);
+        jobB.setJarByClass(TopPopularLinks.class);
         return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
@@ -139,7 +139,7 @@ public class TopPopularLinks extends Configured implements Tool {
 
     public static class TopLinksMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
         Integer N;
-        private TreeSet<Pair<Integer, String>> countTopTitlesMap = new TreeSet<Pair<Integer, String>>();
+        private TreeSet<Pair<Integer, Integer>> countTopTitlesMap = new TreeSet<Pair<Integer, Integer>>();
 
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
@@ -151,9 +151,9 @@ public class TopPopularLinks extends Configured implements Tool {
         public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
 
             Integer count = Integer.parseInt(value.toString());
-            String word = key.toString();
+            Integer word = Integer.parseInt(key.toString());
 
-            countTopTitlesMap.add(new Pair<Integer, String>(count, word));
+            countTopTitlesMap.add(new Pair<Integer, Integer>(count, word));
 
             if (countTopTitlesMap.size() > this.N) {
                 countTopTitlesMap.remove(countTopTitlesMap.first());
@@ -162,9 +162,9 @@ public class TopPopularLinks extends Configured implements Tool {
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
-            for (Pair<Integer, String> item : countTopTitlesMap) {
-                String[] strings = {item.second, item.first.toString()};
-                TextArrayWritable val = new TextArrayWritable(strings);
+            for (Pair<Integer, Integer> item : countTopTitlesMap) {
+                Integer[] strings = {item.second, item.first};
+                IntArrayWritable val = new IntArrayWritable(strings);
                 context.write(NullWritable.get(), val);
             }
 
@@ -188,7 +188,7 @@ public class TopPopularLinks extends Configured implements Tool {
                 Integer[] pair= (Integer[]) val.toArray();
 
                 Integer word = pair[0];
-                Integer count = Integer.parseInt(pair[1].toString());
+                Integer count = pair[1];
 //                Integer wordInt = Integer.parseInt(word);
 //                String word = pair[0].toString();
                 countToWordMap.add(new Pair<Integer, Integer>(count, word));
