@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.ArrayList;
 
 public class PopularityLeague extends Configured implements Tool {
 
@@ -115,16 +116,17 @@ public class PopularityLeague extends Configured implements Tool {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
-            StringTokenizer tokenizerSrc = new StringTokenizer(line, ":");
-            String pageSrcList = tokenizerSrc.nextToken();
-            String pageDestList = tokenizerSrc.nextToken();
-            StringTokenizer tokenizer = new StringTokenizer(pageDestList, " ");
-            while (tokenizer.hasMoreTokens()) {
-                String nextToken = tokenizer.nextToken().trim().toLowerCase();
-                if (this.league.contains(nextToken)) {
-                    context.write(new IntWritable(Integer.parseInt(nextToken)), new IntWritable(1));
-                }
+            StringTokenizer lineTokenizer = new StringTokenizer(line, ":");
+            String srcPage = lineTokenizer.nextToken();
+
+            String destPages = lineTokenizer.nextToken();
+            StringTokenizer tokenizer = new StringTokenizer(destPages, " ");
+            while (tokenizer.hasMoreTokens()){
+                String landingPage = tokenizer.nextToken();
+                Integer landingPg = Integer.parseInt(landingPage);
+                context.write(new IntWritable(landingPg), new IntWritable(1));
             }
+
         }
     }
 
@@ -169,10 +171,12 @@ public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArr
 
     public static class TopLeagueReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
     private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+     List<String> league;
 
     @Override
     protected void setup(Context context) throws IOException,InterruptedException {
         Configuration conf = context.getConfiguration();
+        this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
     }
 
     @Override
@@ -187,20 +191,31 @@ public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArr
 
         }
 
-        int i = countTopLeagueMap.size()-1;
-        int previousCount = -1;
-        int previousRank = countTopLeagueMap.size();
+        ArrayList<Pair<Integer, Integer>> finalTopLeagueMap = new ArrayList<Pair<Integer, Integer>>();
         for (Pair<Integer, Integer> item: countTopLeagueMap) {
-            IntWritable rank = new IntWritable(1);
-            i--;
+            if (this.league.contains(item.second.intValue())) {
+                finalTopLeagueMap.add(item);
+        }
+
+
+        int previousCount = -1;
+        int previousRank = -1;
+        int currentRank = 0;
+
+        for (int i = finalTopLeagueMap.size()-1, int rankCnt =0 ; i>=0 ; i--, rankcnt++) {
+            Pair<Integer, Integer> item = finalTopLeagueMap.get(i);
+            IntWritable rank = null;
             Integer word = item.second;
             Integer value = item.first;
             if(value.intValue() == previousCount) {
+                previousRank = currentRank;
                 rank = new IntWritable(previousRank);
             }else {
-                rank = new IntWritable(i);
-                previousRank = i;
+                previousRank = rankcnt;
+                currentRank = rankcnt-1;
+                rank = new IntWritable(rankcnt);
             }
+            previousCount = value;
             context.write(new IntWritable(word), rank);
         }
     }

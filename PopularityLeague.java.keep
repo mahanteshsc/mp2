@@ -20,16 +20,12 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
+import java.util.*;
 
-// >>> Don't Change
-public class TopTitles extends Configured implements Tool {
+public class PopularityLeague extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(new Configuration(), new TopTitles(), args);
+        int res = ToolRunner.run(new Configuration(), new PopularityLeague(), args);
         System.exit(res);
     }
 
@@ -40,28 +36,28 @@ public class TopTitles extends Configured implements Tool {
         Path tmpPath = new Path("/mp2/tmp");
         fs.delete(tmpPath, true);
 
-        Job jobA = Job.getInstance(conf, "Title Count");
-        jobA.setOutputKeyClass(Text.class);
+        Job jobA = Job.getInstance(conf, "League Count");
+        jobA.setOutputKeyClass(IntWritable.class);
         jobA.setOutputValueClass(IntWritable.class);
 
-        jobA.setMapperClass(TitleCountMap.class);
-        jobA.setReducerClass(TitleCountReduce.class);
+        jobA.setMapperClass(LeagueCountMap.class);
+        jobA.setReducerClass(LeagueCountReduce.class);
 
         FileInputFormat.setInputPaths(jobA, new Path(args[0]));
         FileOutputFormat.setOutputPath(jobA, tmpPath);
 
-        jobA.setJarByClass(TopTitles.class);
+        jobA.setJarByClass(PopularityLeague.class);
         jobA.waitForCompletion(true);
 
-        Job jobB = Job.getInstance(conf, "Top Titles");
-        jobB.setOutputKeyClass(Text.class);
+        Job jobB = Job.getInstance(conf, "Top Leagues");
+        jobB.setOutputKeyClass(IntWritable.class);
         jobB.setOutputValueClass(IntWritable.class);
 
         jobB.setMapOutputKeyClass(NullWritable.class);
-        jobB.setMapOutputValueClass(TextArrayWritable.class);
+        jobB.setMapOutputValueClass(IntArrayWritable.class);
 
-        jobB.setMapperClass(TopTitlesMap.class);
-        jobB.setReducerClass(TopTitlesReduce.class);
+        jobB.setMapperClass(TopLeagueMap.class);
+        jobB.setReducerClass(TopLeagueReduce.class);
         jobB.setNumReduceTasks(1);
 
         FileInputFormat.setInputPaths(jobB, tmpPath);
@@ -70,7 +66,7 @@ public class TopTitles extends Configured implements Tool {
         jobB.setInputFormatClass(KeyValueTextInputFormat.class);
         jobB.setOutputFormatClass(TextOutputFormat.class);
 
-        jobB.setJarByClass(TopTitles.class);
+        jobB.setJarByClass(PopularityLeague.class);
         return jobB.waitForCompletion(true) ? 0 : 1;
     }
 
@@ -103,119 +99,136 @@ public class TopTitles extends Configured implements Tool {
             set(texts);
         }
     }
-// <<< Don't Change
 
-    public static class TitleCountMap extends Mapper<Object, Text, Text, IntWritable> {
-        List<String> stopWords;
-        String delimiters;
+    public static class LeagueCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
+        List<String> league;
 
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
 
             Configuration conf = context.getConfiguration();
-
-            String stopWordsPath = conf.get("stopwords");
-            String delimitersPath = conf.get("delimiters");
-
-            this.stopWords = Arrays.asList(readHDFSFile(stopWordsPath, conf).split("\n"));
-            this.delimiters = readHDFSFile(delimitersPath, conf);
+            String leaguePath = conf.get("league");
+            this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
         }
 
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
-            StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters);
+            StringTokenizer tokenizerSrc = new StringTokenizer(line, ":");
+            String pageSrcList = tokenizerSrc.nextToken();
+            String pageDestList = tokenizerSrc.nextToken();
+            StringTokenizer tokenizer = new StringTokenizer(pageDestList, " ");
             while (tokenizer.hasMoreTokens()) {
                 String nextToken = tokenizer.nextToken().trim().toLowerCase();
-                if (!this.stopWords.contains(nextToken)) {
-                    context.write(new Text(nextToken), new IntWritable(1));
+                if (this.league.contains(nextToken)) {
+                    context.write(new IntWritable(Integer.parseInt(nextToken)), new IntWritable(1));
                 }
             }
         }
     }
 
-    public static class TitleCountReduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class LeagueCountReduce extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
         @Override
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             int sum = 0;
             for (IntWritable val : values) {
                 sum += val.get();
             }
+    //            Integer keyInt = Integer.parseInt(key.toString());
             context.write(key, new IntWritable(sum));
         }
+    }
+
+
+public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
+    private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+
+    @Override
+    protected void setup(Context context) throws IOException,InterruptedException {
+        Configuration conf = context.getConfiguration();
+    }
+
+    @Override
+    public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
+        Integer count = Integer.parseInt(value.toString());
+        Integer word = Integer.parseInt(key.toString());
+        countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+    }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+        for (Pair<Integer, Integer> item : countTopLeagueMap) {
+            Integer[] strings = {item.second, item.first};
+            IntArrayWritable val = new IntArrayWritable(strings);
+            context.write(NullWritable.get(), val);
         }
-//    }
 
-    public static class TopTitlesMap extends Mapper<Text, Text, NullWritable, TextArrayWritable> {
-        Integer N;
-        private TreeSet<Pair<Integer, String>> countTopTitlesMap = new TreeSet<Pair<Integer, String>>();
+    }
+}
 
-        @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
-            Configuration conf = context.getConfiguration();
-            this.N = conf.getInt("N", 10);
+    public static class TopLeagueReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
+    private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+
+    @Override
+    protected void setup(Context context) throws IOException,InterruptedException {
+        Configuration conf = context.getConfiguration();
+    }
+
+    @Override
+    public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
+        for (IntArrayWritable val: values) {
+            IntWritable[] pair= (IntWritable[]) val.toArray();
+
+            Integer word = pair[0].get();
+            Integer count = pair[1].get();
+
+            countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+
         }
 
-        @Override
-        public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-            Integer count = Integer.parseInt(value.toString());
-            String word = key.toString();
-
-            countTopTitlesMap.add(new Pair<Integer, String>(count, word));
-
-            if (countTopTitlesMap.size() > this.N) {
-                countTopTitlesMap.remove(countTopTitlesMap.first());
+        int i = countTopLeagueMap.size()-1;
+        int previousCount = -1;
+        int previousRank = countTopLeagueMap.size();
+        for (Pair<Integer, Integer> item: countTopLeagueMap) {
+            IntWritable rank = new IntWritable(1);
+            i--;
+            Integer word = item.second;
+            Integer value = item.first;
+            if(value.intValue() == previousCount) {
+                rank = new IntWritable(previousRank);
+            }else {
+                rank = new IntWritable(i);
+                previousRank = i;
             }
+            context.write(new IntWritable(word), rank);
+        }
+    }
+}
+
+
+
+
+    public static class IntArrayWritable extends ArrayWritable {
+        public IntArrayWritable() {
+            super(IntWritable.class);
         }
 
-        @Override
-        protected void cleanup(Context context) throws IOException, InterruptedException {
-            for (Pair<Integer, String> item : countTopTitlesMap) {
-                String[] strings = {item.second, item.first.toString()};
-                TextArrayWritable val = new TextArrayWritable(strings);
-                context.write(NullWritable.get(), val);
+        public IntArrayWritable(Integer[] numbers) {
+            super(IntWritable.class);
+            IntWritable[] ints = new IntWritable[numbers.length];
+            for (int i = 0; i < numbers.length; i++) {
+                ints[i] = new IntWritable(numbers[i]);
             }
-
+            set(ints);
         }
     }
 
-    public static class TopTitlesReduce extends Reducer<NullWritable, TextArrayWritable, Text, IntWritable> {
-        Integer N;
-        private TreeSet<Pair<Integer, String>> countToWordMap = new TreeSet<Pair<Integer, String>>();
-
-        @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
-            Configuration conf = context.getConfiguration();
-            this.N = conf.getInt("N", 10);
-        }
-
-        @Override
-        public void reduce(NullWritable key, Iterable<TextArrayWritable> values, Context context) throws IOException, InterruptedException {
-            for (TextArrayWritable val: values) {
-                Text[] pair= (Text[]) val.toArray();
-
-                String word = pair[0].toString();
-                Integer count = Integer.parseInt(pair[1].toString());
-
-                countToWordMap.add(new Pair<Integer, String>(count, word));
-
-                if (countToWordMap.size() > this.N) {
-                    countToWordMap.remove(countToWordMap.first());
-                }
-            }
-
-            for (Pair<Integer, String> item: countToWordMap) {
-                Text word = new Text(item.second);
-                IntWritable value = new IntWritable(item.first);
-                context.write(word, value);
-            }
-        }
-    }
 
 }
 
-// >>> Don't Change
+
+
 class Pair<A extends Comparable<? super A>,
         B extends Comparable<? super B>>
         implements Comparable<Pair<A, B>> {
@@ -268,4 +281,3 @@ class Pair<A extends Comparable<? super A>,
         return "(" + first + ", " + second + ')';
     }
 }
-// <<< Don't Change

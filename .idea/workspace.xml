@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="fc57e33a-88ef-44d3-8b5f-ac45a549a3c3" name="Default" comment="" />
+    <list default="true" id="fc57e33a-88ef-44d3-8b5f-ac45a549a3c3" name="Default" comment="">
+      <change type="DELETED" beforePath="C:\bd\assignment-CC\mp2\OrphanPages.java.keep" afterPath="" />
+      <change type="DELETED" beforePath="C:\bd\assignment-CC\mp2\TitleCount.java.keep" afterPath="" />
+      <change type="DELETED" beforePath="C:\bd\assignment-CC\mp2\TopTitleStatistics.java.keep" afterPath="" />
+      <change type="DELETED" beforePath="C:\bd\assignment-CC\mp2\TopTitles.java.keep" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PopularityLeague.java" afterPath="$PROJECT_DIR$/PopularityLeague.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="mp2.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,11 +28,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TopPopularLinks.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TopPopularLinks.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TopPopularLinks.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.29566854">
-              <caret line="187" column="27" selection-start-line="187" selection-start-column="27" selection-end-line="187" selection-end-column="27" />
+            <state vertical-scroll-proportion="-15.24138">
+              <caret line="121" column="9" selection-start-line="108" selection-start-column="106" selection-end-line="121" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="class#TextArrayWritable#0;class#TopPopularLinks#0" expanded="false" />
@@ -35,29 +42,30 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PopularityLeague.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PopularityLeague.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/PopularityLeague.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-17.137932">
-              <caret line="197" column="51" selection-start-line="197" selection-start-column="51" selection-end-line="197" selection-end-column="51" />
+            <state vertical-scroll-proportion="0.7438795">
+              <caret line="214" column="40" selection-start-line="214" selection-start-column="40" selection-end-line="214" selection-end-column="40" />
               <folding>
-                <element signature="e#3356#3357#0" expanded="false" />
-                <element signature="e#3397#3398#0" expanded="false" />
-                <element signature="e#5607#5631#0" expanded="false" />
-                <element signature="e#6663#6687#0" expanded="false" />
-                <element signature="e#8021#8022#0" expanded="false" />
-                <element signature="e#8069#8070#0" expanded="false" />
-                <element signature="e#8819#8820#0" expanded="false" />
-                <element signature="e#8871#8872#0" expanded="false" />
-                <element signature="e#9110#9111#0" expanded="false" />
-                <element signature="e#9172#9173#0" expanded="false" />
-                <element signature="e#9217#9218#0" expanded="false" />
-                <element signature="e#9268#9269#0" expanded="false" />
-                <element signature="e#9607#9608#0" expanded="false" />
-                <element signature="e#9671#9672#0" expanded="false" />
-                <element signature="e#9717#9718#0" expanded="false" />
-                <element signature="e#9773#9774#0" expanded="false" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#6638#6662#0" expanded="true" />
+                <element signature="e#7444#7468#0" expanded="true" />
+                <element signature="e#9349#9350#0" expanded="true" />
+                <element signature="e#9401#9402#0" expanded="true" />
+                <element signature="e#9640#9641#0" expanded="true" />
+                <element signature="e#9702#9703#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PopularityLeague.java.keep" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/PopularityLeague.java.keep">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="123" column="0" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -76,6 +84,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/TopPopularLinks.java" />
+        <option value="$PROJECT_DIR$/PopularityLeague.java" />
       </list>
     </option>
   </component>
@@ -399,47 +408,38 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TitleCount.java">
+    <entry file="file://$PROJECT_DIR$/PopularityLeague.java.keep">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.9259257">
-          <caret line="11" column="63" selection-start-line="11" selection-start-column="63" selection-end-line="11" selection-end-column="63" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="123" column="0" selection-start-line="123" selection-start-column="0" selection-end-line="123" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/PopularityLeague.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-17.137932">
-          <caret line="197" column="51" selection-start-line="197" selection-start-column="51" selection-end-line="197" selection-end-column="51" />
-          <folding>
-            <element signature="e#3356#3357#0" expanded="false" />
-            <element signature="e#3397#3398#0" expanded="false" />
-            <element signature="e#5607#5631#0" expanded="false" />
-            <element signature="e#6663#6687#0" expanded="false" />
-            <element signature="e#8021#8022#0" expanded="false" />
-            <element signature="e#8069#8070#0" expanded="false" />
-            <element signature="e#8819#8820#0" expanded="false" />
-            <element signature="e#8871#8872#0" expanded="false" />
-            <element signature="e#9110#9111#0" expanded="false" />
-            <element signature="e#9172#9173#0" expanded="false" />
-            <element signature="e#9217#9218#0" expanded="false" />
-            <element signature="e#9268#9269#0" expanded="false" />
-            <element signature="e#9607#9608#0" expanded="false" />
-            <element signature="e#9671#9672#0" expanded="false" />
-            <element signature="e#9717#9718#0" expanded="false" />
-            <element signature="e#9773#9774#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TopPopularLinks.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.29566854">
-          <caret line="187" column="27" selection-start-line="187" selection-start-column="27" selection-end-line="187" selection-end-column="27" />
+        <state vertical-scroll-proportion="-15.24138">
+          <caret line="121" column="9" selection-start-line="108" selection-start-column="106" selection-end-line="121" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="class#TextArrayWritable#0;class#TopPopularLinks#0" expanded="false" />
             <element signature="e#5131#5155#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PopularityLeague.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7438795">
+          <caret line="214" column="40" selection-start-line="214" selection-start-column="40" selection-end-line="214" selection-end-column="40" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#6638#6662#0" expanded="true" />
+            <element signature="e#7444#7468#0" expanded="true" />
+            <element signature="e#9349#9350#0" expanded="true" />
+            <element signature="e#9401#9402#0" expanded="true" />
+            <element signature="e#9640#9641#0" expanded="true" />
+            <element signature="e#9702#9703#0" expanded="true" />
           </folding>
         </state>
       </provider>
