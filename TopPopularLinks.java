@@ -70,8 +70,8 @@ public class TopPopularLinks extends Configured implements Tool {
         jobB.setOutputKeyClass(Text.class);
         jobB.setOutputValueClass(IntWritable.class);
 
-        jobB.setMapOutputKeyClass(IntWritable.class);
-        jobB.setMapOutputValueClass(IntWritable.class);
+        jobB.setMapOutputKeyClass(NullWritable.class);
+        jobB.setMapOutputValueClass(IntArrayWritable.class);
 
         jobB.setMapperClass(TopLinksMap.class);
         jobB.setReducerClass(TopLinksReduce.class);
