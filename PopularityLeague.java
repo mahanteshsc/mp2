@@ -119,7 +119,7 @@ public class PopularityLeague extends Configured implements Tool {
             StringTokenizer lineTokenizer = new StringTokenizer(line, ":");
             String srcPage = lineTokenizer.nextToken();
             Integer srcPg = Integer.parseInt(srcPage);
-            context.write(new IntWritable(srcPg), new IntWritable(0));
+//            context.write(new IntWritable(srcPg), new IntWritable(0));
 
             String destPages = lineTokenizer.nextToken();
             StringTokenizer tokenizer = new StringTokenizer(destPages, " ");
@@ -207,8 +207,8 @@ public class PopularityLeague extends Configured implements Tool {
                         repeatCount=0;
                     }
                    Integer rankCnt = (i + repeatCount);
-//                   context.write(new IntWritable(word), new IntWritable(rankCnt));
-                 context.write( new IntWritable(rankCnt), new IntWritable(word));
+                   context.write(new IntWritable(word), new IntWritable(rankCnt));
+//                 context.write( new IntWritable(rankCnt), new IntWritable(word));
                    previousWordCount = value;
                      i--;
                   }
