@@ -197,7 +197,7 @@ public class PopularityLeague extends Configured implements Tool {
             Iterator iterator = countTopLeagueMap.descendingIterator();
              int i = lsize-1;
              while (iterator.hasNext()){
-                Pair<Integer, Integer> item = iterator.next();
+                Pair<Integer, Integer> item = (Pair<Integer, Integer>)iterator.next();
                 Integer word = item.second;
                 Integer value = item.first;
                     if(value.intValue() == previousWordCount) {
