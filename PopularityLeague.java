@@ -194,8 +194,8 @@ public class PopularityLeague extends Configured implements Tool {
             Integer repeatCount = 0;
             Integer lsize = countTopLeagueMap.size();
             Integer previousWordCount= -1;
-//            Iterator iterator = countTopLeagueMap.descendingIterator();
-                Iterator iterator = countTopLeagueMap.iterator();
+            Iterator iterator = countTopLeagueMap.descendingIterator();
+//                Iterator iterator = countTopLeagueMap.iterator();
              int i = lsize-1;
              while (iterator.hasNext()){
                 Pair<Integer, Integer> item = (Pair<Integer, Integer>)iterator.next();
@@ -206,8 +206,7 @@ public class PopularityLeague extends Configured implements Tool {
                     }else {
                         repeatCount=0;
                     }
-                   Integer rankCnt = (i-repeatCount);
-    //               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
+                   Integer rankCnt = (i + repeatCount);
                    context.write(new IntWritable(word), new IntWritable(rankCnt));
                    previousWordCount = value;
                      i--;
