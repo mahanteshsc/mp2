@@ -174,55 +174,30 @@ public class PopularityLeague extends Configured implements Tool {
     }
 
     public static class TopLeagueReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
-        private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+            private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
 
-        @Override
-        protected void setup(Context context) throws IOException,InterruptedException {
-            Configuration conf = context.getConfiguration();
-        }
-
-        @Override
-        public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
-            for (IntArrayWritable val: values) {
-                IntWritable[] pair= (IntWritable[]) val.toArray();
-                Integer word = pair[0].get();
-                Integer count = pair[1].get();
-                countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+            @Override
+            protected void setup(Context context) throws IOException,InterruptedException {
+                Configuration conf = context.getConfiguration();
             }
 
-    //        int previousCount = -1;
-    //        int previousRank = -1;
-    //        int currentRank = 0;
-    //        IntWritable rank = null;
-    //        Int repeatCnt =0;
-    //        int leagueSize = countTopLeagueMap.size();
-    //        for (int i = leagueSize-1, int rankCnt =0 ; i>=0 ; i--, rankcnt++) {
-    //            Pair<Integer, Integer> item = countTopLeagueMap.get(i);
-    //            Integer word = item.second;
-    //            Integer value = item.first;
-    //            if(value.intValue() == previousCount) {
-    //                previousRank = currentRank;
-    //                rank = new IntWritable(previousRank);
-    //            }else {
-    //                previousRank = rankcnt;
-    //                currentRank = rankcnt-1;
-    //                rank = new IntWritable(rankcnt);
-    //            }
-    //            context.write(new IntWritable(word), rank);
-    //            previousCount = value;
-    //        }
-
+            @Override
+            public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
+                for (IntArrayWritable val: values) {
+                    IntWritable[] pair= (IntWritable[]) val.toArray();
+                    Integer word = pair[0].get();
+                    Integer count = pair[1].get();
+                    countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+                }
 
     //        Integer init = lsize-1;
-    //        countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>(Collections.reverseOrder());
             Integer repeatCount = 0;
             Integer lsize = countTopLeagueMap.size();
             Integer previousWordCount= -1;
-            ArrayList<Integer> keys = new ArrayList<Integer>(countTopLeagueMap.keySet());
-    //       for(int i = 0; i < lsize; i++){
-             for(int i = lsize-1 ; i >= 0; i--){
-//              Pair<Integer, Integer> item = countTopLeagueMap.get(i);
-                Pair<Integer, Integer> item = countTopLeagueMap.get(keys.get(i));
+            Iterator iterator = countTopLeagueMap.descendingIterator();
+             int i = lsize-1;
+             while (iterator.hasNext()){
+                Pair<Integer, Integer> item = iterator.next();
                 Integer word = item.second;
                 Integer value = item.first;
                     if(value.intValue() == previousWordCount) {
@@ -234,24 +209,25 @@ public class PopularityLeague extends Configured implements Tool {
     //               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
                    context.write(new IntWritable(word), rankCnt);
                    previousWordCount = value;
+                     i--;
                   }
                 }
             }
 
-    public static class IntArrayWritable extends ArrayWritable {
-        public IntArrayWritable() {
-            super(IntWritable.class);
-        }
-
-        public IntArrayWritable(Integer[] numbers) {
-            super(IntWritable.class);
-            IntWritable[] ints = new IntWritable[numbers.length];
-            for (int i = 0; i < numbers.length; i++) {
-                ints[i] = new IntWritable(numbers[i]);
+        public static class IntArrayWritable extends ArrayWritable {
+            public IntArrayWritable() {
+                super(IntWritable.class);
             }
-            set(ints);
+
+            public IntArrayWritable(Integer[] numbers) {
+                super(IntWritable.class);
+                IntWritable[] ints = new IntWritable[numbers.length];
+                for (int i = 0; i < numbers.length; i++) {
+                    ints[i] = new IntWritable(numbers[i]);
+                }
+                set(ints);
+            }
         }
-    }
 }
 
 
