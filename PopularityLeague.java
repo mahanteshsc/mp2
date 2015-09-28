@@ -207,7 +207,7 @@ public class PopularityLeague extends Configured implements Tool {
                     }
                    Integer rankCnt = (i-repeatCount);
     //               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
-                   context.write(new IntWritable(word), rankCnt);
+                   context.write(new IntWritable(word), new IntWritable(rankCnt));
                    previousWordCount = value;
                      i--;
                   }
