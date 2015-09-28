@@ -218,17 +218,18 @@ public class PopularityLeague extends Configured implements Tool {
             Integer repeatCount = 0;
             Integer lsize = countTopLeagueMap.size();
             Integer previousWordCount= -1;
+            ArrayList<Integer> keys = new ArrayList<Integer>(countTopLeagueMap.keySet());
     //       for(int i = 0; i < lsize; i++){
              for(int i = lsize-1 ; i >= 0; i--){
 //              Pair<Integer, Integer> item = countTopLeagueMap.get(i);
-                Pair<Integer, Integer> item = countTopLeagueMap.get(i);
+                Pair<Integer, Integer> item = countTopLeagueMap.get(keys.get(i));
                 Integer word = item.second;
                 Integer value = item.first;
-                if(value.intValue() == previousWordCount) {
-                    repeatCount++;
-                }else {
-                    repeatCount=0;
-                }
+                    if(value.intValue() == previousWordCount) {
+                        repeatCount++;
+                    }else {
+                        repeatCount=0;
+                    }
                    Integer rankCnt = (i-repeatCount);
     //               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
                    context.write(new IntWritable(word), rankCnt);
