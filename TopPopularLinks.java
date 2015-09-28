@@ -109,8 +109,9 @@ public class TopPopularLinks extends Configured implements Tool {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
             StringTokenizer lineTokenizer = new StringTokenizer(line, ":");
-            String srcPage = lineTokenizer.nextToken();
-            context.write(new IntWritable(srcPage), new IntWritable(0));
+            String srcPage = lineTokenizer.nextToken().trim();
+            Integer srcPgInt = Integer.parseInt(srcPage);
+            context.write(new IntWritable(srcPgInt), new IntWritable(0));
 
             String destPages = lineTokenizer.nextToken();
             StringTokenizer tokenizer = new StringTokenizer(destPages, " ");

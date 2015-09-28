@@ -87,21 +87,6 @@ public class PopularityLeague extends Configured implements Tool {
         return everything.toString();
     }
 
-    public static class IntArrayWritable extends ArrayWritable {
-        public IntArrayWritable() {
-            super(IntWritable.class);
-        }
-
-        public IntArrayWritable(Integer[] numbers) {
-            super(IntWritable.class);
-            IntWritable[] ints = new IntWritable[numbers.length];
-            for (int i = 0; i < numbers.length; i++) {
-                ints[i] = new IntWritable(numbers[i]);
-            }
-            set(ints);
-        }
-    }
-
     public static class TextArrayWritable extends ArrayWritable {
         public TextArrayWritable() {
             super(Text.class);
@@ -133,7 +118,8 @@ public class PopularityLeague extends Configured implements Tool {
             String line = value.toString();
             StringTokenizer lineTokenizer = new StringTokenizer(line, ":");
             String srcPage = lineTokenizer.nextToken();
-            context.write(new IntWritable(srcPage), new IntWritable(0));
+            Integer srcPg = Integer.parseInt(srcPage);
+            context.write(new IntWritable(srcPg), new IntWritable(0));
 
             String destPages = lineTokenizer.nextToken();
             StringTokenizer tokenizer = new StringTokenizer(destPages, " ");
@@ -156,102 +142,115 @@ public class PopularityLeague extends Configured implements Tool {
         }
     }
 
+    public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
+        private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+        List<String> league;
 
-public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
-    private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
-    List<String> league;
-
-    @Override
-    protected void setup(Context context) throws IOException,InterruptedException {
-        Configuration conf = context.getConfiguration();
-        this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
-    }
-
-    @Override
-    public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
-        Integer count = Integer.parseInt(value.toString());
-        Integer word = Integer.parseInt(key.toString());
-        if (this.league.contains(word)) {
-            countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
-        }
-    }
-
-    @Override
-    protected void cleanup(Context context) throws IOException, InterruptedException {
-        for (Pair<Integer, Integer> item : countTopLeagueMap) {
-            Integer[] strings = {item.second, item.first};
-            IntArrayWritable val = new IntArrayWritable(strings);
-            context.write(NullWritable.get(), val);
+        @Override
+        protected void setup(Context context) throws IOException,InterruptedException {
+            Configuration conf = context.getConfiguration();
+            this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
         }
 
+        @Override
+        public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
+            Integer count = Integer.parseInt(value.toString());
+            Integer word = Integer.parseInt(key.toString());
+            if (this.league.contains(word)) {
+                countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+            }
+        }
+
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            for (Pair<Integer, Integer> item : countTopLeagueMap) {
+                Integer[] strings = {item.second, item.first};
+                IntArrayWritable val = new IntArrayWritable(strings);
+                context.write(NullWritable.get(), val);
+            }
+
+        }
     }
-}
 
     public static class TopLeagueReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
-    private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+        private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
 
-    @Override
-    protected void setup(Context context) throws IOException,InterruptedException {
-        Configuration conf = context.getConfiguration();
-    }
-
-    @Override
-    public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
-        for (IntArrayWritable val: values) {
-            IntWritable[] pair= (IntWritable[]) val.toArray();
-            Integer word = pair[0].get();
-            Integer count = pair[1].get();
-            countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+        @Override
+        protected void setup(Context context) throws IOException,InterruptedException {
+            Configuration conf = context.getConfiguration();
         }
 
-//        int previousCount = -1;
-//        int previousRank = -1;
-//        int currentRank = 0;
-//        IntWritable rank = null;
-//        Int repeatCnt =0;
-//        int leagueSize = countTopLeagueMap.size();
-//        for (int i = leagueSize-1, int rankCnt =0 ; i>=0 ; i--, rankcnt++) {
-//            Pair<Integer, Integer> item = countTopLeagueMap.get(i);
-//            Integer word = item.second;
-//            Integer value = item.first;
-//            if(value.intValue() == previousCount) {
-//                previousRank = currentRank;
-//                rank = new IntWritable(previousRank);
-//            }else {
-//                previousRank = rankcnt;
-//                currentRank = rankcnt-1;
-//                rank = new IntWritable(rankcnt);
-//            }
-//            context.write(new IntWritable(word), rank);
-//            previousCount = value;
-//        }
+        @Override
+        public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
+            for (IntArrayWritable val: values) {
+                IntWritable[] pair= (IntWritable[]) val.toArray();
+                Integer word = pair[0].get();
+                Integer count = pair[1].get();
+                countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+            }
+
+    //        int previousCount = -1;
+    //        int previousRank = -1;
+    //        int currentRank = 0;
+    //        IntWritable rank = null;
+    //        Int repeatCnt =0;
+    //        int leagueSize = countTopLeagueMap.size();
+    //        for (int i = leagueSize-1, int rankCnt =0 ; i>=0 ; i--, rankcnt++) {
+    //            Pair<Integer, Integer> item = countTopLeagueMap.get(i);
+    //            Integer word = item.second;
+    //            Integer value = item.first;
+    //            if(value.intValue() == previousCount) {
+    //                previousRank = currentRank;
+    //                rank = new IntWritable(previousRank);
+    //            }else {
+    //                previousRank = rankcnt;
+    //                currentRank = rankcnt-1;
+    //                rank = new IntWritable(rankcnt);
+    //            }
+    //            context.write(new IntWritable(word), rank);
+    //            previousCount = value;
+    //        }
 
 
-//        Integer init = lsize-1;
-//        countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>(Collections.reverseOrder());
-        Integer repeatCount = 0;
-        Integer lsize = countTopLeagueMap.size();
-        Integer previousWordCount= -1;
-//       for(int i = 0; i < lsize; i++){
-         for(int i = lsize-1 ; i >= 0; i--){
-            Pair<Integer, Integer> item = countTopLeagueMap.get(i);
-            Integer word = item.second;
-            Integer value = item.first;
-            if(value.intValue() == previousWordCount) {
-                repeatCount++;
-            }else {
-                repeatCount=0;
+    //        Integer init = lsize-1;
+    //        countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>(Collections.reverseOrder());
+            Integer repeatCount = 0;
+            Integer lsize = countTopLeagueMap.size();
+            Integer previousWordCount= -1;
+    //       for(int i = 0; i < lsize; i++){
+             for(int i = lsize-1 ; i >= 0; i--){
+                Pair<Integer, Integer> item = countTopLeagueMap.get(i);
+                Integer word = item.second;
+                Integer value = item.first;
+                if(value.intValue() == previousWordCount) {
+                    repeatCount++;
+                }else {
+                    repeatCount=0;
+                }
+                   Intger rankCnt = (i-repeatCount);
+    //               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
+                   context.write(new IntWritable(word), rankCnt);
+                   previousWordCount = value;
+                  }
+                }
             }
-               Intger rankCnt = (i-repeatCount);
-//               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
-               context.write(new IntWritable(word), rankCnt);
-               previousWordCount = value;
-              }
+
+    public static class IntArrayWritable extends ArrayWritable {
+        public IntArrayWritable() {
+            super(IntWritable.class);
+        }
+
+        public IntArrayWritable(Integer[] numbers) {
+            super(IntWritable.class);
+            IntWritable[] ints = new IntWritable[numbers.length];
+            for (int i = 0; i < numbers.length; i++) {
+                ints[i] = new IntWritable(numbers[i]);
             }
+            set(ints);
         }
     }
-
 }
+
 
 class Pair<A extends Comparable<? super A>,
         B extends Comparable<? super B>>
