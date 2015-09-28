@@ -149,6 +149,7 @@ public class PopularityLeague extends Configured implements Tool {
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
             Configuration conf = context.getConfiguration();
+            String leaguePath = conf.get("league");
             this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
         }
 
@@ -219,6 +220,7 @@ public class PopularityLeague extends Configured implements Tool {
             Integer previousWordCount= -1;
     //       for(int i = 0; i < lsize; i++){
              for(int i = lsize-1 ; i >= 0; i--){
+//              Pair<Integer, Integer> item = countTopLeagueMap.get(i);
                 Pair<Integer, Integer> item = countTopLeagueMap.get(i);
                 Integer word = item.second;
                 Integer value = item.first;
@@ -227,7 +229,7 @@ public class PopularityLeague extends Configured implements Tool {
                 }else {
                     repeatCount=0;
                 }
-                   Intger rankCnt = (i-repeatCount);
+                   Integer rankCnt = (i-repeatCount);
     //               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
                    context.write(new IntWritable(word), rankCnt);
                    previousWordCount = value;
