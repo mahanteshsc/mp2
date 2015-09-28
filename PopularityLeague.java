@@ -20,6 +20,7 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.Integer;
 import java.util.*;
 import java.util.ArrayList;
 
@@ -112,12 +113,12 @@ public class PopularityLeague extends Configured implements Tool {
             this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
         }
 
-
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String line = value.toString();
             StringTokenizer lineTokenizer = new StringTokenizer(line, ":");
             String srcPage = lineTokenizer.nextToken();
+            context.write(new IntWritable(srcPage), new IntWritable(0));
 
             String destPages = lineTokenizer.nextToken();
             StringTokenizer tokenizer = new StringTokenizer(destPages, " ");
@@ -126,7 +127,6 @@ public class PopularityLeague extends Configured implements Tool {
                 Integer landingPg = Integer.parseInt(landingPage);
                 context.write(new IntWritable(landingPg), new IntWritable(1));
             }
-
         }
     }
 
@@ -137,7 +137,6 @@ public class PopularityLeague extends Configured implements Tool {
             for (IntWritable val : values) {
                 sum += val.get();
             }
-    //            Integer keyInt = Integer.parseInt(key.toString());
             context.write(key, new IntWritable(sum));
         }
     }
@@ -145,17 +144,20 @@ public class PopularityLeague extends Configured implements Tool {
 
 public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArrayWritable> {
     private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
+    List<String> league;
 
     @Override
     protected void setup(Context context) throws IOException,InterruptedException {
         Configuration conf = context.getConfiguration();
+        this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
     }
 
     @Override
     public void map(Text key, Text value, Context context) throws IOException, InterruptedException {
         Integer count = Integer.parseInt(value.toString());
         Integer word = Integer.parseInt(key.toString());
-        countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+        if (this.league.contains(word)) {
+            countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
     }
 
     @Override
@@ -171,58 +173,67 @@ public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArr
 
     public static class TopLeagueReduce extends Reducer<NullWritable, IntArrayWritable, IntWritable, IntWritable> {
     private TreeSet<Pair<Integer, Integer>> countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>();
-     List<String> league;
 
     @Override
     protected void setup(Context context) throws IOException,InterruptedException {
         Configuration conf = context.getConfiguration();
-        this.league = Arrays.asList(readHDFSFile(leaguePath, conf).split("\n"));
     }
 
     @Override
     public void reduce(NullWritable key, Iterable<IntArrayWritable> values, Context context) throws IOException, InterruptedException {
         for (IntArrayWritable val: values) {
             IntWritable[] pair= (IntWritable[]) val.toArray();
-
             Integer word = pair[0].get();
             Integer count = pair[1].get();
-
             countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
-
         }
 
-        ArrayList<Pair<Integer, Integer>> finalTopLeagueMap = new ArrayList<Pair<Integer, Integer>>();
-        for (Pair<Integer, Integer> item: countTopLeagueMap) {
-            if (this.league.contains(item.second.intValue())) {
-                finalTopLeagueMap.add(item);
-        }
+//        int previousCount = -1;
+//        int previousRank = -1;
+//        int currentRank = 0;
+//        IntWritable rank = null;
+//        Int repeatCnt =0;
+//        int leagueSize = countTopLeagueMap.size();
+//        for (int i = leagueSize-1, int rankCnt =0 ; i>=0 ; i--, rankcnt++) {
+//            Pair<Integer, Integer> item = countTopLeagueMap.get(i);
+//            Integer word = item.second;
+//            Integer value = item.first;
+//            if(value.intValue() == previousCount) {
+//                previousRank = currentRank;
+//                rank = new IntWritable(previousRank);
+//            }else {
+//                previousRank = rankcnt;
+//                currentRank = rankcnt-1;
+//                rank = new IntWritable(rankcnt);
+//            }
+//            context.write(new IntWritable(word), rank);
+//            previousCount = value;
+//        }
 
 
-        int previousCount = -1;
-        int previousRank = -1;
-        int currentRank = 0;
-
-        for (int i = finalTopLeagueMap.size()-1, int rankCnt =0 ; i>=0 ; i--, rankcnt++) {
-            Pair<Integer, Integer> item = finalTopLeagueMap.get(i);
-            IntWritable rank = null;
+//        Integer init = lsize-1;
+//        countTopLeagueMap = new TreeSet<Pair<Integer, Integer>>(Collections.reverseOrder());
+        Integer repeatCount = 0;
+        Integer lsize = countTopLeagueMap.size();
+        Integer previousWordCount= -1;
+//       for(int i = 0; i < lsize; i++){
+         for(int i = lsize-1 ; i >= 0; i--){
+            Pair<Integer, Integer> item = countTopLeagueMap.get(i);
             Integer word = item.second;
             Integer value = item.first;
-            if(value.intValue() == previousCount) {
-                previousRank = currentRank;
-                rank = new IntWritable(previousRank);
+            if(value.intValue() == previousWordCount) {
+                repeatCount++;
             }else {
-                previousRank = rankcnt;
-                currentRank = rankcnt-1;
-                rank = new IntWritable(rankcnt);
+                repeatCount=0;
             }
-            previousCount = value;
-            context.write(new IntWritable(word), rank);
+               Intger rankCnt = (i-repeatCount);
+//               Intger rankCnt = lsize - (i - repeatCount) - 1 ;
+               context.write(new IntWritable(word), rankCnt);
+               previousWordCount = value;
+              }
+            }
         }
     }
-}
-
-
-
 
     public static class IntArrayWritable extends ArrayWritable {
         public IntArrayWritable() {
@@ -238,11 +249,7 @@ public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArr
             set(ints);
         }
     }
-
-
 }
-
-
 
 class Pair<A extends Comparable<? super A>,
         B extends Comparable<? super B>>

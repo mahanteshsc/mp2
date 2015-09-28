@@ -110,6 +110,7 @@ public class TopPopularLinks extends Configured implements Tool {
             String line = value.toString();
             StringTokenizer lineTokenizer = new StringTokenizer(line, ":");
             String srcPage = lineTokenizer.nextToken();
+            context.write(new IntWritable(srcPage), new IntWritable(0));
 
             String destPages = lineTokenizer.nextToken();
             StringTokenizer tokenizer = new StringTokenizer(destPages, " ");
