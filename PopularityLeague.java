@@ -158,6 +158,7 @@ public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArr
         Integer word = Integer.parseInt(key.toString());
         if (this.league.contains(word)) {
             countTopLeagueMap.add(new Pair<Integer, Integer>(count, word));
+        }
     }
 
     @Override
