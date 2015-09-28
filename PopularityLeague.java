@@ -87,6 +87,21 @@ public class PopularityLeague extends Configured implements Tool {
         return everything.toString();
     }
 
+    public static class IntArrayWritable extends ArrayWritable {
+        public IntArrayWritable() {
+            super(IntWritable.class);
+        }
+
+        public IntArrayWritable(Integer[] numbers) {
+            super(IntWritable.class);
+            IntWritable[] ints = new IntWritable[numbers.length];
+            for (int i = 0; i < numbers.length; i++) {
+                ints[i] = new IntWritable(numbers[i]);
+            }
+            set(ints);
+        }
+    }
+
     public static class TextArrayWritable extends ArrayWritable {
         public TextArrayWritable() {
             super(Text.class);
@@ -236,20 +251,6 @@ public static class TopLeagueMap extends Mapper<Text, Text, NullWritable, IntArr
         }
     }
 
-    public static class IntArrayWritable extends ArrayWritable {
-        public IntArrayWritable() {
-            super(IntWritable.class);
-        }
-
-        public IntArrayWritable(Integer[] numbers) {
-            super(IntWritable.class);
-            IntWritable[] ints = new IntWritable[numbers.length];
-            for (int i = 0; i < numbers.length; i++) {
-                ints[i] = new IntWritable(numbers[i]);
-            }
-            set(ints);
-        }
-    }
 }
 
 class Pair<A extends Comparable<? super A>,
